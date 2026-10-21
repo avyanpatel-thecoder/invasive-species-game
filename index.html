@@ -1,0 +1,727 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invasive Species Challenge</title>
+<style>
+:root {
+  --green: #286847;
+  --dark: #183d2b;
+  --light: #f3f7f0;
+  --border: #dce6da;
+  --orange: #e6a34a;
+  --red: #b84236;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--light);
+  color: #26372d;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+}
+button { font: inherit; cursor: pointer; }
+button:focus-visible {
+  outline: 3px solid var(--orange);
+  outline-offset: 3px;
+}
+header {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 15px 22px;
+}
+.nav {
+  max-width: 1050px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+.logo {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--dark);
+}
+.logo span { color: var(--green); }
+.score-pill {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 13px;
+  font-weight: bold;
+  background: white;
+}
+main {
+  width: min(100% - 32px, 950px);
+  margin: 30px auto 60px;
+}
+.panel {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 26px;
+  margin-bottom: 20px;
+}
+h1, h2, h3, p { margin-top: 0; }
+h1 {
+  color: var(--dark);
+  font-size: clamp(28px, 5vw, 42px);
+  line-height: 1.12;
+  margin-bottom: 13px;
+}
+h2 { color: var(--dark); font-size: 25px; }
+h3 { font-size: 17px; }
+p { color: #59695e; }
+.eyebrow {
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  font-weight: bold;
+  color: var(--green);
+  margin-bottom: 9px;
+}
+.hero {
+  background: #e6efe1;
+  border: 1px solid #d4e2ce;
+  border-radius: 12px;
+  padding: 35px;
+  display: grid;
+  grid-template-columns: 1fr 155px;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+.hero-art {
+  background: white;
+  border: 1px solid #d4e2ce;
+  border-radius: 12px;
+  height: 145px;
+  display: grid;
+  place-items: center;
+  font-size: 69px;
+}
+.button {
+  display: inline-block;
+  padding: 11px 17px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-weight: bold;
+  transition: background .15s, transform .15s;
+}
+.button:hover { transform: translateY(-1px); }
+.primary { background: var(--green); color: white; }
+.primary:hover { background: var(--dark); }
+.secondary {
+  background: white;
+  border-color: #cbd9cb;
+  color: var(--dark);
+}
+.secondary:hover { background: #f2f6f0; }
+.button:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+  margin-top: 18px;
+}
+.mode-card {
+  text-align: left;
+  border: 1px solid var(--border);
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  color: inherit;
+}
+.mode-card:hover {
+  border-color: var(--green);
+  background: #f8fbf6;
+}
+.mode-icon { font-size: 34px; display: block; margin-bottom: 8px; }
+.mode-card strong { display: block; font-size: 19px; color: var(--dark); }
+.mode-card small { display: block; margin-top: 5px; color: #66776a; }
+.hidden { display: none !important; }
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.progress-track {
+  height: 8px;
+  border-radius: 10px;
+  background: #e7eee4;
+  overflow: hidden;
+  margin: 12px 0 22px;
+}
+.progress-fill {
+  height: 100%;
+  width: 0;
+  background: var(--green);
+  transition: width .25s;
+}
+.instructions {
+  background: #f6f8f3;
+  border-left: 4px solid var(--green);
+  padding: 12px 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+.species-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.species-card {
+  position: relative;
+  border: 2px solid var(--border);
+  border-radius: 9px;
+  padding: 15px 12px;
+  min-width: 0;
+  background: white;
+  text-align: left;
+  color: inherit;
+}
+.species-card:hover { border-color: #86a990; }
+.species-card.selected {
+  border-color: var(--green);
+  background: #eff7ee;
+}
+.species-card:disabled { cursor: default; }
+.species-card.correct { border-color: #398553; background: #eef8ef; }
+.species-card.incorrect { border-color: #c35c50; background: #fff1ef; }
+.species-emoji { font-size: 35px; display: block; margin-bottom: 9px; }
+.species-name {
+  font-weight: bold;
+  font-size: 15px;
+  line-height: 1.3;
+  color: var(--dark);
+  display: block;
+}
+.species-hint {
+  font-size: 12px;
+  color: #6d7c70;
+  margin-top: 8px;
+  display: block;
+}
+.card-result {
+  font-size: 12px;
+  font-weight: bold;
+  display: block;
+  margin-top: 9px;
+}
+.correct .card-result { color: #23723e; }
+.incorrect .card-result { color: var(--red); }
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 22px;
+}
+.feedback {
+  padding: 13px 15px;
+  border-radius: 7px;
+  margin-top: 16px;
+  font-weight: bold;
+}
+.feedback.good { background: #eaf6eb; color: #246c38; }
+.feedback.bad { background: #fff0ed; color: #9c352c; }
+.quiz-option {
+  width: 100%;
+  display: block;
+  text-align: left;
+  padding: 14px 16px;
+  margin: 9px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  color: #26372d;
+}
+.quiz-option:hover:not(:disabled) {
+  border-color: var(--green);
+  background: #f6faf4;
+}
+.quiz-option.correct { border-color: #398553; background: #eef8ef; }
+.quiz-option.incorrect { border-color: #c35c50; background: #fff1ef; }
+.quiz-option:disabled { cursor: default; }
+.quiz-feedback {
+  padding: 12px 14px;
+  background: #f3f7f0;
+  border-radius: 7px;
+  margin-top: 14px;
+}
+.result-number {
+  font-size: 64px;
+  font-weight: 800;
+  color: var(--green);
+  line-height: 1.2;
+}
+.result-box {
+  background: #f1f6ed;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 25px;
+  text-align: center;
+  margin: 18px 0;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 18px 0;
+}
+.stat {
+  background: #f7f9f5;
+  border: 1px solid var(--border);
+  padding: 15px 8px;
+  text-align: center;
+  border-radius: 8px;
+}
+.stat strong { display: block; font-size: 25px; color: var(--dark); }
+.stat span { font-size: 12px; color: #68786b; }
+footer {
+  text-align: center;
+  color: #738075;
+  font-size: 13px;
+  padding: 20px;
+}
+@media (max-width: 650px) {
+  main { width: min(100% - 20px, 950px); margin-top: 16px; }
+  .panel { padding: 17px; }
+  .hero { grid-template-columns: 1fr; padding: 22px; }
+  .hero-art { display: none; }
+  .species-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .species-card { padding: 12px 10px; }
+  .mode-grid { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <div class="logo">🌱 Wild<span>Watch</span></div>
+    <div class="score-pill">Score: <span id="headerScore">0</span></div>
+  </div>
+</header>
+
+<main>
+  <section id="home">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">California nature challenge</div>
+        <h1>Invasive Species Challenge</h1>
+        <p>Can you tell which species belong in California and which ones can harm its ecosystems? Test your knowledge in this interactive nature game.</p>
+        <button class="button primary" onclick="showModes()">Start playing →</button>
+      </div>
+      <div class="hero-art" aria-hidden="true">🌿🦋</div>
+    </div>
+    <div class="panel">
+      <h2>How to play</h2>
+      <p>Choose plants or animals, then investigate six species in each round.</p>
+      <div class="instructions">
+        <strong>Scoring rules</strong><br>
+        +1 point for each invasive species you select.<br>
+        −1 point for selecting a native species by mistake.<br>
+        −1 point for missing an invasive species.<br>
+        Earn +1 for each correct native-species quiz answer.
+      </div>
+      <p>You'll complete three rounds and answer three quick quiz questions after each round.</p>
+    </div>
+  </section>
+
+  <section id="modes" class="hidden">
+    <div class="panel">
+      <div class="eyebrow">Choose your challenge</div>
+      <h1>What will you investigate?</h1>
+      <p>Both modes have three rounds and a final score.</p>
+      <div class="mode-grid">
+        <button class="mode-card" onclick="startGame('plants')">
+          <span class="mode-icon">🌿</span>
+          <strong>Plant Patrol</strong>
+          <small>Find invasive plants that threaten California's landscapes.</small>
+        </button>
+        <button class="mode-card" onclick="startGame('animals')">
+          <span class="mode-icon">🐾</span>
+          <strong>Animal Alert</strong>
+          <small>Spot animals that can damage native habitats.</small>
+        </button>
+      </div>
+      <div class="actions">
+        <button class="button secondary" onclick="showHome()">← Back</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="game" class="hidden">
+    <div class="panel">
+      <div class="top-row">
+        <div>
+          <div class="eyebrow" id="modeLabel">Plant Patrol</div>
+          <h2 id="roundTitle">Round 1</h2>
+        </div>
+        <div class="score-pill">Score: <span id="gameScore">0</span></div>
+      </div>
+      <div id="roundProgressText">Round 1 of 3</div>
+      <div class="progress-track"><div class="progress-fill" id="roundProgress"></div></div>
+      <p id="roundIntro">Study each species and select the invasive ones.</p>
+      <div class="instructions">
+        <strong>Your mission:</strong> Select every invasive species you think is present in the cards. Leave native species unselected, then check your answers.
+      </div>
+      <div id="speciesGrid" class="species-grid"></div>
+      <div id="roundFeedback" aria-live="polite"></div>
+      <div class="actions">
+        <button class="button secondary" onclick="confirmExit()">Exit round</button>
+        <button id="checkButton" class="button primary" onclick="checkRound()">Check answers →</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="panel">
+      <div class="eyebrow">Native species quiz</div>
+      <h2 id="quizTitle">Question 1 of 3</h2>
+      <div class="progress-track"><div class="progress-fill" id="quizProgress"></div></div>
+      <p id="quizQuestion"></p>
+      <div id="quizOptions"></div>
+      <div id="quizFeedback" class="quiz-feedback hidden" aria-live="polite"></div>
+      <div class="actions">
+        <span id="quizScoreText">Score: 0</span>
+        <button id="nextQuizButton" class="button primary hidden" onclick="nextQuiz()">Next question →</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="results" class="hidden">
+    <div class="panel">
+      <div class="eyebrow">Challenge complete</div>
+      <h1 id="resultTitle">Well done, nature detective!</h1>
+      <p id="resultMessage">You've completed the challenge.</p>
+      <div class="result-box">
+        <div class="result-number" id="finalScore">0</div>
+        <div>Final points</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><strong id="correctCount">0</strong><span>Correct selections</span></div>
+        <div class="stat"><strong id="wrongCount">0</strong><span>Incorrect selections</span></div>
+        <div class="stat"><strong id="quizCorrectCount">0</strong><span>Quiz answers correct</span></div>
+      </div>
+      <h2>Why it matters</h2>
+      <p>Invasive species can spread quickly, compete with native species for resources, alter habitats, and disrupt food webs. Learning to identify them is one way to help protect California's biodiversity.</p>
+      <div class="actions">
+        <button class="button secondary" onclick="showModes()">Choose another mode</button>
+        <button class="button primary" onclick="startGame(currentMode)">Play again ↻</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>WildWatch · Learn about nature. Help protect it.</footer>
+
+<script>
+const species = {
+  plants: [
+    [
+      {name:"Yellow starthistle",emoji:"🌼",invasive:true,fact:"This prickly plant can form dense stands and crowd out native vegetation."},
+      {name:"California poppy",emoji:"🌼",invasive:false,fact:"California's state flower is native to the western United States."},
+      {name:"Giant reed",emoji:"🎋",invasive:true,fact:"Giant reed grows rapidly along waterways and can change riparian habitats."},
+      {name:"Coast live oak",emoji:"🌳",invasive:false,fact:"This evergreen oak is an important native California tree."},
+      {name:"Tree of heaven",emoji:"🌲",invasive:true,fact:"This fast-growing tree can spread aggressively and is difficult to control."},
+      {name:"Blue elderberry",emoji:"🫐",invasive:false,fact:"This native shrub provides berries and habitat for wildlife."}
+    ],
+    [
+      {name:"French broom",emoji:"🌿",invasive:true,fact:"French broom forms dense growth and can increase wildfire fuel."},
+      {name:"Manzanita",emoji:"🌱",invasive:false,fact:"Many manzanitas are native California shrubs adapted to local conditions."},
+      {name:"Ice plant",emoji:"🌸",invasive:true,fact:"Some introduced ice plants spread over coastal habitats and displace native plants."},
+      {name:"California buckwheat",emoji:"🌾",invasive:false,fact:"This native plant supports many local pollinators."},
+      {name:"Water hyacinth",emoji:"🪷",invasive:true,fact:"It can cover water surfaces, blocking sunlight and reducing oxygen."},
+      {name:"Western redbud",emoji:"🌺",invasive:false,fact:"Western redbud is native to California and has bright spring flowers."}
+    ],
+    [
+      {name:"Pampas grass",emoji:"🌾",invasive:true,fact:"This large grass can spread and crowd out coastal native vegetation."},
+      {name:"Toyon",emoji:"🍒",invasive:false,fact:"Also called California holly, toyon is a native shrub with red berries."},
+      {name:"Saltcedar",emoji:"🌳",invasive:true,fact:"Saltcedar can alter streamside habitats and use large amounts of water."},
+      {name:"Douglas iris",emoji:"💜",invasive:false,fact:"Douglas iris is a native western plant with purple or blue flowers."},
+      {name:"Perennial pepperweed",emoji:"🌱",invasive:true,fact:"It can form dense stands in wetlands and other disturbed areas."},
+      {name:"Valley oak",emoji:"🌳",invasive:false,fact:"Valley oak is native to California's valleys and foothills."}
+    ]
+  ],
+  animals: [
+    [
+      {name:"American bullfrog",emoji:"🐸",invasive:true,fact:"Introduced bullfrogs can prey on native amphibians and other wildlife."},
+      {name:"California newt",emoji:"🦎",invasive:false,fact:"California newts are native amphibians found in parts of the state."},
+      {name:"Wild pig",emoji:"🐗",invasive:true,fact:"Feral pigs disturb soil, damage crops, and can harm native habitats."},
+      {name:"Black-tailed deer",emoji:"🦌",invasive:false,fact:"Black-tailed deer are native to western North America."},
+      {name:"European starling",emoji:"🐦",invasive:true,fact:"Introduced starlings compete with native birds for nesting cavities."},
+      {name:"California quail",emoji:"🐦",invasive:false,fact:"The California quail is the state bird."}
+    ],
+    [
+      {name:"Red-eared slider",emoji:"🐢",invasive:true,fact:"Released pet turtles can compete with native turtles for food and habitat."},
+      {name:"Western fence lizard",emoji:"🦎",invasive:false,fact:"This familiar lizard is native to much of California."},
+      {name:"Green crab",emoji:"🦀",invasive:true,fact:"European green crabs can prey on shellfish and disrupt coastal food webs."},
+      {name:"California condor",emoji:"🦅",invasive:false,fact:"California condors are native scavengers and an endangered conservation success story."},
+      {name:"Argentine ant",emoji:"🐜",invasive:true,fact:"These introduced ants can displace native ants and disrupt local food webs."},
+      {name:"California ground squirrel",emoji:"🐿️",invasive:false,fact:"This squirrel is native to California and lives in burrows."}
+    ],
+    [
+      {name:"Nutria",emoji:"🐀",invasive:true,fact:"Nutria are large rodents that damage wetland plants and riverbanks."},
+      {name:"Pacific tree frog",emoji:"🐸",invasive:false,fact:"This small native frog is known for its distinctive call."},
+      {name:"Quagga mussel",emoji:"🦪",invasive:true,fact:"Quagga mussels can clog water infrastructure and alter aquatic ecosystems."},
+      {name:"Bobcat",emoji:"🐈",invasive:false,fact:"Bobcats are native predators found throughout much of California."},
+      {name:"Red swamp crayfish",emoji:"🦞",invasive:true,fact:"Introduced crayfish can compete with native aquatic animals and damage habitat."},
+      {name:"California sea lion",emoji:"🦭",invasive:false,fact:"California sea lions are native marine mammals along the Pacific coast."}
+    ]
+  ]
+};
+
+const quizzes = {
+  plants: [
+    {q:"Which plant is native to California?",a:["Yellow starthistle","California poppy"],correct:1,why:"The California poppy is native and is also California's state flower."},
+    {q:"Which plant belongs naturally in California?",a:["French broom","Western redbud"],correct:1,why:"Western redbud is native to California. French broom is an introduced invasive plant."},
+    {q:"Which is a native California plant?",a:["Toyon","Pampas grass"],correct:0,why:"Toyon is a native shrub, while pampas grass is invasive in parts of California."},
+    {q:"Which plant is native to California?",a:["Giant reed","Valley oak"],correct:1,why:"Valley oak is a native California tree."},
+    {q:"Which is native to California?",a:["Manzanita","Ice plant"],correct:0,why:"Many manzanita species are native to California. Introduced ice plants can displace native coastal plants."},
+    {q:"Which plant is native to California?",a:["Saltcedar","Douglas iris"],correct:1,why:"Douglas iris is a native western plant."},
+    {q:"Which one is California's state flower?",a:["California poppy","Yellow starthistle"],correct:0,why:"The California poppy is the state flower and is native to the region."},
+    {q:"Which is native to California?",a:["Tree of heaven","Blue elderberry"],correct:1,why:"Blue elderberry is a native shrub that supports wildlife."},
+    {q:"Which plant is native to California?",a:["Perennial pepperweed","California buckwheat"],correct:1,why:"California buckwheat is native and supports local pollinators."}
+  ],
+  animals: [
+    {q:"Which animal is native to California?",a:["American bullfrog","California newt"],correct:1,why:"California newts are native amphibians. Introduced bullfrogs threaten native wildlife."},
+    {q:"Which animal is California's state bird?",a:["European starling","California quail"],correct:1,why:"The California quail is the state bird."},
+    {q:"Which animal is native to California?",a:["Wild pig","Black-tailed deer"],correct:1,why:"Black-tailed deer are native to western North America."},
+    {q:"Which reptile is native to California?",a:["Red-eared slider","Western fence lizard"],correct:1,why:"The western fence lizard is native to California."},
+    {q:"Which animal is native to California?",a:["Green crab","California condor"],correct:1,why:"California condors are native scavengers."},
+    {q:"Which animal is native to California?",a:["Argentine ant","California ground squirrel"],correct:1,why:"California ground squirrels are native to the state."},
+    {q:"Which is a native California animal?",a:["Nutria","Pacific tree frog"],correct:1,why:"The Pacific tree frog is native to the western United States, including California."},
+    {q:"Which is a native California animal?",a:["Quagga mussel","Bobcat"],correct:1,why:"Bobcats are native predators in California."},
+    {q:"Which marine mammal is native to California?",a:["Red swamp crayfish","California sea lion"],correct:1,why:"California sea lions are native to the Pacific coast."}
+  ]
+};
+
+let currentMode = "plants";
+let roundIndex = 0;
+let score = 0;
+let correctSelections = 0;
+let wrongSelections = 0;
+let quizCorrect = 0;
+let selected = new Set();
+let roundChecked = false;
+let quizIndex = 0;
+let quizOrder = [];
+let quizAnswered = false;
+
+const $ = id => document.getElementById(id);
+
+function showSection(id) {
+  ["home","modes","game","quiz","results"].forEach(section =>
+    $(section).classList.toggle("hidden", section !== id)
+  );
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function showHome() { showSection("home"); }
+function showModes() { showSection("modes"); }
+
+function updateScore() {
+  $("headerScore").textContent = score;
+  $("gameScore").textContent = score;
+  $("quizScoreText").textContent = "Score: " + score;
+}
+
+function startGame(mode) {
+  currentMode = mode;
+  roundIndex = 0;
+  score = 0;
+  correctSelections = 0;
+  wrongSelections = 0;
+  quizCorrect = 0;
+  updateScore();
+  loadRound();
+}
+
+function loadRound() {
+  selected = new Set();
+  roundChecked = false;
+  $("modeLabel").textContent = currentMode === "plants" ? "🌿 Plant Patrol" : "🐾 Animal Alert";
+  $("roundTitle").textContent = "Round " + (roundIndex + 1);
+  $("roundProgressText").textContent = "Round " + (roundIndex + 1) + " of 3";
+  $("roundProgress").style.width = ((roundIndex + 1) / 3 * 100) + "%";
+  $("roundIntro").textContent = currentMode === "plants"
+    ? "Study these plants. Which ones are invasive in California?"
+    : "Study these animals. Which ones are invasive in California?";
+  $("roundFeedback").innerHTML = "";
+  $("checkButton").disabled = false;
+  $("checkButton").textContent = "Check answers →";
+
+  const items = species[currentMode][roundIndex];
+  $("speciesGrid").innerHTML = items.map((item, i) => `
+    <button class="species-card" id="card-${i}" aria-pressed="false"
+      onclick="toggleSpecies(${i})">
+      <span class="species-emoji" aria-hidden="true">${item.emoji}</span>
+      <span class="species-name">${item.name}</span>
+      <span class="species-hint">Tap to select</span>
+      <span class="card-result"></span>
+    </button>
+  `).join("");
+  showSection("game");
+}
+
+function toggleSpecies(index) {
+  if (roundChecked) return;
+  const card = $("card-" + index);
+  if (selected.has(index)) {
+    selected.delete(index);
+    card.classList.remove("selected");
+    card.setAttribute("aria-pressed","false");
+  } else {
+    selected.add(index);
+    card.classList.add("selected");
+    card.setAttribute("aria-pressed","true");
+  }
+}
+
+function checkRound() {
+  if (roundChecked) return;
+  roundChecked = true;
+  let roundPoints = 0;
+  let right = 0;
+  let mistakes = 0;
+  const items = species[currentMode][roundIndex];
+
+  items.forEach((item, i) => {
+    const card = $("card-" + i);
+    card.disabled = true;
+    const wasSelected = selected.has(i);
+    const wasCorrect = wasSelected === item.invasive;
+    if (wasCorrect && item.invasive) {
+      score++;
+      correctSelections++;
+      roundPoints++;
+      right++;
+      card.classList.add("correct");
+      card.querySelector(".card-result").textContent = "+1 · Invasive";
+    } else if (wasCorrect && !item.invasive) {
+      // Correctly leaving a native species unselected earns no point.
+      card.querySelector(".card-result").textContent = "Native · Correct";
+      card.classList.add("correct");
+    } else {
+      score--;
+      wrongSelections++;
+      mistakes++;
+      card.classList.add("incorrect");
+      card.querySelector(".card-result").textContent = item.invasive
+        ? "−1 · Missed invasive"
+        : "−1 · Native selected";
+    }
+    card.querySelector(".species-hint").textContent = item.fact;
+  });
+
+  updateScore();
+  const feedback = $("roundFeedback");
+  feedback.innerHTML = `<div class="feedback ${mistakes === 0 ? "good" : "bad"}">
+    Round complete: ${roundPoints} point${roundPoints === 1 ? "" : "s"} earned from correct invasive selections, ${mistakes} mistake${mistakes === 1 ? "" : "s"}. Review the facts on each card.
+  </div>`;
+  $("checkButton").textContent = "Start native quiz →";
+  $("checkButton").onclick = beginQuiz;
+}
+
+function beginQuiz() {
+  quizOrder = [roundIndex * 3, roundIndex * 3 + 1, roundIndex * 3 + 2];
+  quizIndex = 0;
+  loadQuizQuestion();
+}
+
+function loadQuizQuestion() {
+  quizAnswered = false;
+  const question = quizzes[currentMode][quizOrder[quizIndex]];
+  $("quizTitle").textContent = "Question " + (quizIndex + 1) + " of 3";
+  $("quizProgress").style.width = ((quizIndex + 1) / 3 * 100) + "%";
+  $("quizQuestion").textContent = question.q;
+  $("quizOptions").innerHTML = question.a.map((answer, i) =>
+    `<button class="quiz-option" onclick="answerQuiz(${i})">${answer}</button>`
+  ).join("");
+  $("quizFeedback").classList.add("hidden");
+  $("nextQuizButton").classList.add("hidden");
+  updateScore();
+  showSection("quiz");
+}
+
+function answerQuiz(choice) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const question = quizzes[currentMode][quizOrder[quizIndex]];
+  const buttons = $("quizOptions").querySelectorAll("button");
+  buttons.forEach((button, i) => {
+    button.disabled = true;
+    if (i === question.correct) button.classList.add("correct");
+    else if (i === choice) button.classList.add("incorrect");
+  });
+
+  const feedback = $("quizFeedback");
+  feedback.classList.remove("hidden");
+  if (choice === question.correct) {
+    score++;
+    quizCorrect++;
+    feedback.innerHTML = "<strong>Correct! +1 point</strong><br>" + question.why;
+    feedback.style.background = "#eaf6eb";
+  } else {
+    score--;
+    wrongSelections++;
+    feedback.innerHTML = "<strong>Not quite. −1 point.</strong><br>" + question.why;
+    feedback.style.background = "#fff0ed";
+  }
+  updateScore();
+  $("nextQuizButton").classList.remove("hidden");
+  $("nextQuizButton").textContent = quizIndex === 2
+    ? (roundIndex === 2 ? "See final results →" : "Next round →")
+    : "Next question →";
+}
+
+function nextQuiz() {
+  if (quizIndex < 2) {
+    quizIndex++;
+    loadQuizQuestion();
+    return;
+  }
+  if (roundIndex < 2) {
+    roundIndex++;
+    loadRound();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  $("finalScore").textContent = score;
+  $("correctCount").textContent = correctSelections;
+  $("wrongCount").textContent = wrongSelections;
+  $("quizCorrectCount").textContent = quizCorrect;
+
+  const total = 18;
+  const percentage = Math.round((score / total) * 100);
+  $("resultTitle").textContent = score >= 14
+    ? "Excellent work, nature detective!"
+    : score >= 7
+      ? "Good work, wildlife watcher!"
+      : "Keep exploring, nature detective!";
+  $("resultMessage").textContent = score >= 14
+    ? "You did a great job spotting invasive species and recognizing native wildlife."
+    : "Every round is a chance to learn. Review the species facts and give it another try.";
+  showSection("results");
+}
+
+function confirmExit() {
+  if (confirm("Leave this round? Your current game progress will be lost.")) {
+    showModes();
+  }
+}
+
+showSection("home");
+</script>
+</body>
+</html>
